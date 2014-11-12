@@ -1,0 +1,11 @@
+[package]
+
+name = "objc"
+version = "0.0.1"
+authors = ["Brendan Zabarauskas <bjzaba@yahoo.com.au>"]
+
+[dependencies.compile_msg]
+git = "https://github.com/huonw/compile_msg"
+
+[dependencies.rust-bindgen]
+git = "https://github.com/crabtw/rust-bindgen.git"
