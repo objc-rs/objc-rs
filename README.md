@@ -17,3 +17,25 @@ limitations under the License.
 # objc-rs
 
 An Objective-C runtime wrapper for Rust.
+
+## Usage
+
+Add these definitions to your `Cargo.toml`:
+
+~~~toml
+[dependencies.i686-apple-darwin.objc]
+git = "https://github.com/bjz/objc-rs.git"
+
+[dependencies.x86_64-apple-darwin.objc]
+git = "https://github.com/bjz/objc-rs.git"
+~~~
+
+Add this line to your crate:
+
+~~~rust
+#[cfg(target_os="macos")]
+extern crate objc;
+~~~
+
+The crate is only supported on OS X. If you attempt to compile it on another
+platform, a compilation error will result.
