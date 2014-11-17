@@ -564,269 +564,197 @@ pub type Impl = extern "C" fn(Id, Selector, ...) -> Id;
 
 // objc_AssociationPolicy
 
-/// An instance of `NSObject`.
-pub type NSObject = Id;
+pub struct NSObject;
 
-/// Returns the class definition of `NSObject`.
+/// Returns the class definition of `NSObject`
 #[allow(non_snake_case)]
 #[inline]
 pub unsafe fn NSObject() -> Class {
-    Class::get("NSObject")
+    class("NSObject")
 }
 
-/// Class methods for `NSObject`.
+/// Class and instance methods for `NSObject`
 #[allow(non_snake_case)]
-pub trait NSObjectClass {
+impl NSObject {
+    ////////////////////////////////////////////////////////////////////////////
     // Initializing a Class
-    unsafe fn initialize(self) -> Self;
-    unsafe fn load(self);
+    ////////////////////////////////////////////////////////////////////////////
 
+    #[inline]
+    pub unsafe fn initialize(class: Class) -> Class {
+        msg_send()(class.as_id(), selector("initialize"))
+    }
+
+    #[inline]
+    pub unsafe fn load(class: Class) {
+        msg_send()(class.as_id(), selector("load"))
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
     // Creating, Copying, and Deallocating Objects
-    unsafe fn alloc(self) -> Self;
-    // TODO: allocWithZone:
-    // TODO: copyWithZone:
-    // TODO: mutableCopyWithZone:
-    unsafe fn new(self) -> NSObject;
+    ////////////////////////////////////////////////////////////////////////////
 
+    #[inline]
+    pub unsafe fn alloc(class: Class) -> Id {
+        msg_send()(class.as_id(), selector("alloc"))
+    }
+
+    // TODO: + allocWithZone:
+
+    #[inline]
+    pub unsafe fn init(this: Id) -> Id {
+        msg_send()(this, selector("init"))
+    }
+
+    #[inline]
+    pub unsafe fn copy(this: Id) -> Id {
+        msg_send()(this, selector("copy"))
+    }
+
+    // TODO: + copyWithZone:
+
+    #[inline]
+    pub unsafe fn mutable_copy(this: Class) -> Id {
+        msg_send()(this, selector("mutable_copy"))
+    }
+
+    // TODO: + mutableCopyWithZone:
+
+    #[inline]
+    pub unsafe fn dealloc(this: Id) -> Id {
+        msg_send()(this, selector("dealloc"))
+    }
+
+    #[inline]
+    pub unsafe fn new(class: Class) -> Id {
+        msg_send()(class.as_id(), selector("new"))
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
     // Identifying Classes
-    unsafe fn class(self) -> Class;
-    unsafe fn superclass(self) -> Class;
-    unsafe fn isSubclassOfClass_(self, a_class: Class) -> bool;
+    ////////////////////////////////////////////////////////////////////////////
 
+    #[inline]
+    pub unsafe fn class(class: Class) -> Class {
+        msg_send()(class.as_id(), selector("class"))
+    }
+
+    #[inline]
+    pub unsafe fn superclass(class: Class) -> Class {
+        msg_send()(class.as_id(), selector("superclass"))
+    }
+
+    #[inline]
+    pub unsafe fn isSubclassOfClass_(class: Class, super: Class) -> bool {
+        ffi::YES == msg_send()(class.as_id(), selector("isSubclassOfClass:"), super)
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
     // Testing Class Functionality
-    // TODO: instancesRespondToSelector:
+    ////////////////////////////////////////////////////////////////////////////
 
+    // TODO: + instancesRespondToSelector:
+
+    ////////////////////////////////////////////////////////////////////////////
     // Testing Protocol Conformance
-    // TODO: conformsToProtocol:
+    ////////////////////////////////////////////////////////////////////////////
 
+    // TODO: + conformsToProtocol:
+
+    ////////////////////////////////////////////////////////////////////////////
     // Obtaining Information About Methods
-    // TODO: instanceMethodForSelector:
-    // TODO: instanceMethodSignatureForSelector:
+    ////////////////////////////////////////////////////////////////////////////
 
+    // TODO: - methodForSelector:
+    // TODO: + instanceMethodForSelector:
+    // TODO: + instanceMethodSignatureForSelector:
+    // TODO: - methodSignatureForSelector:
+
+    ////////////////////////////////////////////////////////////////////////////
     // Describing Objects
-    // TODO: description
+    ////////////////////////////////////////////////////////////////////////////
 
-    // Sending Messages
-    // TODO: cancelPreviousPerformRequestsWithTarget:
-    // TODO: cancelPreviousPerformRequestsWithTarget:selector:object:
+    // TODO: + description
 
-    // Dynamically Resolving Methods
-    // TODO: resolveClassMethod:
-    // TODO: resolveInstanceMethod:
-
-    // Archiving
-    // TODO: classFallbacksForKeyedArchiver
-    // TODO: classForKeyedUnarchiver
-    // TODO: setVersion:
-    // TODO: version
-}
-
-impl NSObjectClass for Class {
-    // Initializing a Class
-
-    #[inline]
-    unsafe fn initialize(self) -> Class {
-        msg_send()(self.as_id(), selector("initialize"))
-    }
-
-    #[inline]
-    unsafe fn load(self) {
-        msg_send()(self.as_id(), selector("load"))
-    }
-
-    // Creating, Copying, and Deallocating Objects
-
-    #[inline]
-    unsafe fn alloc(self) -> Class {
-        msg_send()(self.as_id(), selector("alloc"))
-    }
-
-    // TODO: allocWithZone:
-    // TODO: copyWithZone:
-    // TODO: mutableCopyWithZone:
-
-    #[inline]
-    unsafe fn new(self) -> NSObject {
-        msg_send()(self.as_id(), selector("new"))
-    }
-
-    // Identifying Classes
-
-    #[inline]
-    unsafe fn class(self) -> Class {
-        msg_send()(self.as_id(), selector("class"))
-    }
-
-    #[inline]
-    unsafe fn superclass(self) -> Class {
-        msg_send()(self.as_id(), selector("superclass"))
-    }
-
-    #[inline]
-    unsafe fn isSubclassOfClass_(self, a_class: Class) -> bool {
-        ffi::YES == msg_send()(self.as_id(), selector("isSubclassOfClass:"), a_class)
-    }
-
-    // Testing Class Functionality
-    // TODO: instancesRespondToSelector:
-
-    // Testing Protocol Conformance
-    // TODO: conformsToProtocol:
-
-    // Obtaining Information About Methods
-    // TODO: instanceMethodForSelector:
-    // TODO: instanceMethodSignatureForSelector:
-
-    // Describing Objects
-    // TODO: description
-
-    // Sending Messages
-    // TODO: cancelPreviousPerformRequestsWithTarget:
-    // TODO: cancelPreviousPerformRequestsWithTarget:selector:object:
-
-    // Dynamically Resolving Methods
-    // TODO: resolveClassMethod:
-    // TODO: resolveInstanceMethod:
-
-    // Archiving
-    // TODO: classFallbacksForKeyedArchiver
-    // TODO: classForKeyedUnarchiver
-    // TODO: setVersion:
-    // TODO: version
-}
-
-/// Instance methods for `NSObject`.
-#[allow(non_snake_case)]
-pub trait NSObjectInstance {
-    // Creating, Copying, and Deallocating Objects
-    unsafe fn init(self) -> Self;
-    unsafe fn copy(self) -> Self;
-    unsafe fn mutable_copy(self) -> Self;
-    unsafe fn dealloc(self) -> Self;
-
-    // Obtaining Information About Methods
-    // TODO: methodForSelector:
-    // TODO: methodSignatureForSelector:
-
+    ////////////////////////////////////////////////////////////////////////////
     // Discardable Content Proxy Support
-    // TODO: autoContentAccessingProxy
+    ////////////////////////////////////////////////////////////////////////////
 
+    // TODO: - autoContentAccessingProxy
+
+    ////////////////////////////////////////////////////////////////////////////
     // Sending Messages
-    // TODO: performSelector:withObject:afterDelay:
-    // TODO: performSelector:withObject:afterDelay:inModes:
-    // TODO: performSelectorOnMainThread:withObject:waitUntilDone:
-    // TODO: performSelectorOnMainThread:withObject:waitUntilDone:modes:
-    // TODO: performSelector:onThread:withObject:waitUntilDone:
-    // TODO: performSelector:onThread:withObject:waitUntilDone:modes:
-    // TODO: performSelectorInBackground:withObject:
+    ////////////////////////////////////////////////////////////////////////////
 
+    // TODO: - performSelector:withObject:afterDelay:
+    // TODO: - performSelector:withObject:afterDelay:inModes:
+    // TODO: - performSelectorOnMainThread:withObject:waitUntilDone:
+    // TODO: - performSelectorOnMainThread:withObject:waitUntilDone:modes:
+    // TODO: - performSelector:onThread:withObject:waitUntilDone:
+    // TODO: - performSelector:onThread:withObject:waitUntilDone:modes:
+    // TODO: - performSelectorInBackground:withObject:
+    // TODO: + cancelPreviousPerformRequestsWithTarget:
+    // TODO: + cancelPreviousPerformRequestsWithTarget:selector:object:
+
+    ////////////////////////////////////////////////////////////////////////////
     // Forwarding Messages
-    // TODO: forwardingTargetForSelector:
-    // TODO: forwardInvocation:
+    ////////////////////////////////////////////////////////////////////////////
 
+    // TODO: - forwardingTargetForSelector:
+    // TODO: - forwardInvocation:
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Dynamically Resolving Methods
+    ////////////////////////////////////////////////////////////////////////////
+
+    // TODO: + resolveClassMethod:
+    // TODO: + resolveInstanceMethod:
+
+    ////////////////////////////////////////////////////////////////////////////
     // Error Handling
-    // TODO: doesNotRecognizeSelector:
+    ////////////////////////////////////////////////////////////////////////////
 
+    // TODO: - doesNotRecognizeSelector:
+
+    ////////////////////////////////////////////////////////////////////////////
     // Archiving
-    // TODO: awakeAfterUsingCoder:
-    // TODO: classForArchiver
-    // TODO: classForCoder
-    // TODO: classForKeyedArchiver
-    // TODO: classForPortCoder
-    // TODO: replacementObjectForArchiver:
-    // TODO: replacementObjectForCoder:
-    // TODO: replacementObjectForKeyedArchiver:
-    // TODO: replacementObjectForPortCoder:
+    ////////////////////////////////////////////////////////////////////////////
 
+    // TODO: - awakeAfterUsingCoder:
+    // TODO: - classForArchiver
+    // TODO:   classForCoder
+    // TODO: - classForKeyedArchiver
+    // TODO: + classFallbacksForKeyedArchiver
+    // TODO: + classForKeyedUnarchiver
+    // TODO: - classForPortCoder
+    // TODO: - replacementObjectForArchiver:
+    // TODO: - replacementObjectForCoder:
+    // TODO: - replacementObjectForKeyedArchiver:
+    // TODO: - replacementObjectForPortCoder:
+    // TODO: + setVersion:
+    // TODO: + version
+
+    ////////////////////////////////////////////////////////////////////////////
     // Working with Class Descriptions
-    // TODO: attributeKeys
-    // TODO: classDescription
-    // TODO: inverseForRelationshipKey:
-    // TODO: toManyRelationshipKeys
-    // TODO: toOneRelationshipKeys
+    ////////////////////////////////////////////////////////////////////////////
 
+    // TODO: - attributeKeys
+    // TODO: - classDescription
+    // TODO: - inverseForRelationshipKey:
+    // TODO: - toManyRelationshipKeys
+    // TODO: - toOneRelationshipKeys
+
+    ////////////////////////////////////////////////////////////////////////////
     // Scripting
-    // TODO: classCode
-    // TODO: className
-    // TODO: copyScriptingValue:forKey:withProperties:
-    // TODO: newScriptingObjectOfClass:forValueForKey:withContentsValue:properties:
-    // TODO: scriptingProperties
-    // TODO: setScriptingProperties:
-    // TODO: scriptingValueForSpecifier:
-}
+    ////////////////////////////////////////////////////////////////////////////
 
-impl NSObjectInstance for NSObject {
-    // Creating, Copying, and Deallocating Objects
-
-    #[inline]
-    unsafe fn init(self) -> Id {
-        msg_send()(self, selector("init"))
-    }
-
-    #[inline]
-    unsafe fn copy(self) -> Id {
-        msg_send()(self, selector("copy"))
-    }
-
-    #[inline]
-    unsafe fn mutable_copy(self) -> Id {
-        msg_send()(self, selector("mutable_copy"))
-    }
-
-    #[inline]
-    unsafe fn dealloc(self) -> Id {
-        msg_send()(self, selector("dealloc"))
-    }
-
-    // Obtaining Information About Methods
-    // TODO: methodForSelector:
-    // TODO: methodSignatureForSelector:
-
-    // Discardable Content Proxy Support
-    // TODO: autoContentAccessingProxy
-
-    // Sending Messages
-    // TODO: performSelector:withObject:afterDelay:
-    // TODO: performSelector:withObject:afterDelay:inModes:
-    // TODO: performSelectorOnMainThread:withObject:waitUntilDone:
-    // TODO: performSelectorOnMainThread:withObject:waitUntilDone:modes:
-    // TODO: performSelector:onThread:withObject:waitUntilDone:
-    // TODO: performSelector:onThread:withObject:waitUntilDone:modes:
-    // TODO: performSelectorInBackground:withObject:
-
-    // Forwarding Messages
-    // TODO: forwardingTargetForSelector:
-    // TODO: forwardInvocation:
-
-    // Error Handling
-    // TODO: doesNotRecognizeSelector:
-
-    // Archiving
-    // TODO: awakeAfterUsingCoder:
-    // TODO: classForArchiver
-    // TODO: classForCoder
-    // TODO: classForKeyedArchiver
-    // TODO: classForPortCoder
-    // TODO: replacementObjectForArchiver:
-    // TODO: replacementObjectForCoder:
-    // TODO: replacementObjectForKeyedArchiver:
-    // TODO: replacementObjectForPortCoder:
-
-    // Working with Class Descriptions
-    // TODO: attributeKeys
-    // TODO: classDescription
-    // TODO: inverseForRelationshipKey:
-    // TODO: toManyRelationshipKeys
-    // TODO: toOneRelationshipKeys
-
-    // Scripting
-    // TODO: classCode
-    // TODO: className
-    // TODO: copyScriptingValue:forKey:withProperties:
-    // TODO: newScriptingObjectOfClass:forValueForKey:withContentsValue:properties:
-    // TODO: scriptingProperties
-    // TODO: setScriptingProperties:
-    // TODO: scriptingValueForSpecifier:
+    // TODO: - classCode
+    // TODO: - className
+    // TODO: - copyScriptingValue:forKey:withProperties:
+    // TODO: - newScriptingObjectOfClass:forValueForKey:withContentsValue:properties:
+    // TODO: - scriptingProperties
+    // TODO: - setScriptingProperties:
+    // TODO: - scriptingValueForSpecifier:
 }
 
 #[cfg(test)]
