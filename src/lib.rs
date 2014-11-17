@@ -25,12 +25,11 @@ use std::string;
 
 /// Foreign functions and types for the Objective-C bridging API.
 #[cfg(target_os="macos")]
+#[allow(dead_code)]
+#[allow(non_snake_case)]
+#[allow(non_camel_case_types)]
+#[allow(non_upper_case_globals)]
 pub mod ffi {
-    #![allow(dead_code)]
-    #![allow(non_snake_case)]
-    #![allow(non_camel_case_types)]
-    #![allow(non_upper_case_globals)]
-
     #[phase(plugin)]
     extern crate bindgen;
 
