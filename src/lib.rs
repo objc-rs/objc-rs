@@ -695,8 +695,8 @@ impl NSObject {
     }
 
     #[inline]
-    pub unsafe fn isSubclassOfClass_(class: Class, super: Class) -> bool {
-        ffi::YES == msg_send()(class.as_id(), selector("isSubclassOfClass:"), super)
+    pub unsafe fn isSubclassOfClass_(class: Class, sup: Class) -> bool {
+        ffi::YES == msg_send()(class.as_id(), selector("isSubclassOfClass:"), sup)
     }
 
     ////////////////////////////////////////////////////////////////////////////
