@@ -18,10 +18,15 @@
 
 extern crate libc;
 
+use std::c_str::CString;
 use std::c_vec::CVec;
 use std::fmt;
+use std::intrinsics::type_id;
 use std::mem;
 use std::string;
+
+pub use ffi::NSUInteger;
+pub use ffi::NSInteger;
 
 /// Foreign functions and types for the Objective-C bridging API.
 #[cfg(target_os="macos")]
@@ -406,7 +411,6 @@ impl Super {
 /// returning a `T`.
 pub fn msg_send<T: 'static>() -> unsafe extern "C" fn(Id, Selector, ...) -> T {
     unsafe {
-        use std::intrinsics::type_id;
         match type_id::<T>() {
             // On the i386 platform, the ABI for functions returning a
             // floating-point value is incompatible with that for functions
@@ -425,7 +429,6 @@ pub fn msg_send<T: 'static>() -> unsafe extern "C" fn(Id, Selector, ...) -> T {
 /// class, returning a `T`.
 pub fn msg_send_super<T: 'static>() -> unsafe extern "C" fn(Super, Selector, ...) -> T {
     unsafe {
-        use std::intrinsics::type_id;
         match type_id::<T>() {
             id if id == type_id::<Id>() => mem::transmute(ffi::objc_msgSendSuper),
             _                           => mem::transmute(ffi::objc_msgSendSuper_stret),
@@ -433,21 +436,69 @@ pub fn msg_send_super<T: 'static>() -> unsafe extern "C" fn(Super, Selector, ...
     }
 }
 
-// Working with Methods
 
-// method_invoke
-// method_invoke_stret
-// method_getName
-// method_getImplementation
-// method_getTypeEncoding
-// method_copyReturnType
-// method_copyArgumentType
-// method_getReturnType
-// method_getNumberOfArguments
-// method_getArgumentType
-// method_getDescription
-// method_setImplementation
-// method_exchangeImplementations
+struct Method {
+    pub raw: ffi::Method,
+}
+
+impl Method {
+    // Working with Methods
+
+    #[inline]
+    pub unsafe fn invoke<T>(self) -> T {
+        unsafe {
+            match type_id::<T>() {
+                id if id == type_id::<Id>() => mem::transmute(ffi::method_invoke(self.raw)),
+                _                           => mem::transmute(ffi::method_invoke_stret(self.raw)),
+            }
+        }
+    }
+
+    #[inline]
+    pub unsafe fn get_name(self) -> String {
+        string::raw::from_buf(ffi::method_getName(self.raw) as *const libc::c_uchar)
+    }
+
+    #[inline]
+    pub unsafe fn get_implementation(self) -> Impl {
+        mem::transmute(ffi::method_getImplementation(self.raw))
+    }
+
+    #[inline]
+    pub unsafe fn get_type_encoding(self) -> CString {
+        CString::new(ffi::method_getTypeEncoding(self.raw), false)
+    }
+
+    #[inline]
+    pub unsafe fn copy_return_type(self) -> CString {
+        CString::new(ffi::method_copyReturnType(self.raw), true)
+    }
+
+    #[inline]
+    pub unsafe fn copy_argument_type(self, index: uint) -> CString {
+        CString::new(ffi::method_copyArgumentType(self.raw, index as libc::uint), true)
+    }
+
+    // method_getReturnType
+
+    #[inline]
+    pub unsafe fn get_number_of_arguments(self) -> uint {
+        ffi::method_exchangeImplementations(self.raw) as uint
+    }
+
+    // method_getArgumentType
+    // method_getDescription
+
+    #[inline]
+    pub unsafe fn set_implementation(self, imp: Impl) -> Impl {
+        mem::transmute(ffi::method_setImplementation(self.raw, mem::transmute(imp)))
+    }
+
+    #[inline]
+    pub unsafe fn exchange_implementations(self, other: Method) {
+        ffi::method_exchangeImplementations(self.raw, other.raw);
+    }
+}
 
 // Working with Libraries
 
