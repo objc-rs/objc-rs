@@ -25,9 +25,6 @@ use std::intrinsics::type_id;
 use std::mem;
 use std::string;
 
-pub use ffi::NSUInteger;
-pub use ffi::NSInteger;
-
 /// Foreign functions and types for the Objective-C bridging API.
 #[cfg(target_os="macos")]
 #[allow(dead_code)]
@@ -437,22 +434,22 @@ pub fn msg_send_super<T: 'static>() -> unsafe extern "C" fn(Super, Selector, ...
 }
 
 
-struct Method {
+pub struct Method {
     pub raw: ffi::Method,
 }
 
 impl Method {
     // Working with Methods
 
-    #[inline]
-    pub unsafe fn invoke<T>(self) -> T {
-        unsafe {
-            match type_id::<T>() {
-                id if id == type_id::<Id>() => mem::transmute(ffi::method_invoke(self.raw)),
-                _                           => mem::transmute(ffi::method_invoke_stret(self.raw)),
-            }
-        }
-    }
+    // #[inline]
+    // pub unsafe fn invoke<T: 'static>(self, reciever: Id) -> T {
+    //     unsafe {
+    //         match type_id::<T>() {
+    //             id if id == type_id::<Id>() => mem::transmute(ffi::method_invoke(reciever.raw as *mut ffi::Struct_objc_object, self.raw)),
+    //             _                           => mem::transmute(ffi::method_invoke_stret(reciever.raw as *mut ffi::Struct_objc_object, self.raw)),
+    //         }
+    //     }
+    // }
 
     #[inline]
     pub unsafe fn get_name(self) -> String {
@@ -471,19 +468,20 @@ impl Method {
 
     #[inline]
     pub unsafe fn copy_return_type(self) -> CString {
-        CString::new(ffi::method_copyReturnType(self.raw), true)
+        CString::new(ffi::method_copyReturnType(self.raw) as *const libc::c_char, true)
     }
 
     #[inline]
     pub unsafe fn copy_argument_type(self, index: uint) -> CString {
-        CString::new(ffi::method_copyArgumentType(self.raw, index as libc::uint), true)
+        CString::new(ffi::method_copyArgumentType(self.raw as *mut ffi::Struct_objc_method,
+                                                  index as libc::c_uint) as *const libc::c_char, true)
     }
 
     // method_getReturnType
 
     #[inline]
     pub unsafe fn get_number_of_arguments(self) -> uint {
-        ffi::method_exchangeImplementations(self.raw) as uint
+        ffi::method_getNumberOfArguments(self.raw) as uint
     }
 
     // method_getArgumentType
