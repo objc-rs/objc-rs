@@ -46,7 +46,7 @@ extern crate objc;
 The crate is only supported on OS X. If you attempt to compile it on
 another platform, a compilation error will result.
 
-## Conventions to follow when wrapping Objective-C APIs
+## Conventions for Objective-C API wrappers
 
 API wrappers depending on `objc-rs` should conform to a common set of
 conventions for consistency.
@@ -72,8 +72,9 @@ naming scheme:
 ### Namespacing methods, instance variables, and properties under unit structs
 
 To prevent conflicts between methods, instance variables, and properties,
-need to be separated from the global namespace using unit structs. These
-structs use the following naming conventions:
+they need to be separated from the global namespace. We do this using unit structs
+onto which we implement the methods as associated functions. The unit structs
+should use the following naming conventions:
 
 | Objective-C Element | Rust identifier format          |
 | ------------------- | ------------------------------- |
