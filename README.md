@@ -58,16 +58,16 @@ that can potentially cause conflicts when converting APIs to Rust. In
 order to resolve these conflicts we adopt a [Hungarian Notation](http://en.wikipedia.org/wiki/Hungarian_notation)
 naming scheme:
 
-Objective-C Element | Prefix 
-====================|========
-C type aliases      | none
-C variables         | none
-C functions         | none
-C struct            | none
-Class Method        | `c_[ident]`
-Instance Method     | `i_[ident]`
-Instance Variables  | `iv_[ident]`
-Properties          | `p_[ident]`
+| Objective-C Element | Prefix          |
+|-------------------- | --------------- |
+| C type aliases      | `[ident]`       |
+| C variables         | `[ident]`       |
+| C functions         | `[ident]`       |
+| C struct            | `[ident]`       |
+| Class Method        | `c_[ident]`     |
+| Instance Method     | `i_[ident]`     |
+| Instance Variables  | `iv_[ident]`    |
+| Properties          | `p_[ident]`     |
 
 ### Namespacing methods, instance variables, and properties under unit structs
 
@@ -75,11 +75,11 @@ To prevent conflicts between methods, instance variables, and properties,
 need to be separated from the global namespace using unit structs. These
 structs use the following naming conventions:
 
-Objective-C Element | Prefix 
-====================|========
-Class               | `[namespace]Class[ident]`
-Protocol            | `[namespace]Protocol[ident]`
-Category            | `[namespace]Category[ident]`
+| Objective-C Element | Prefix                          |
+| ------------------- | ------------------------------- |
+| Class               | `[namespace]Class[ident]`       |
+| Protocol            | `[namespace]Protocol[ident]`    |
+| Category            | `[namespace]Category[ident]`    |
 
 #### Example
 
@@ -102,13 +102,13 @@ impl NSProtocolObject {
 Objective-C borrows Smalltalk's selector style for its message sending syntax.
 In order to model this in rust, we use `_` as a stand in for the `:`.
 
-Objective-C selector    | Rust method identifier
-========================|=======================
-`  foo`                 | `p_foo`
-`+ newFoo:`             | `c_newFoo_`
-`+ newFoo:withBar:`     | `c_newFoo_withBar_`
-`- setFoo:`             | `i_setFoo_`
-`- setFoo:withBar:`     | `i_setFoo_withBar_`
+| Objective-C selector    | Rust method identifier      |
+| ----------------------- | --------------------------- |
+| `  foo`                 | `p_foo`                     |
+| `+ newFoo:`             | `c_newFoo_`                 |
+| `+ newFoo:withBar:`     | `c_newFoo_withBar_`         |
+| `- setFoo:`             | `i_setFoo_`                 |
+| `- setFoo:withBar:`     | `i_setFoo_withBar_`         |
 
 ## Sending messages
 
