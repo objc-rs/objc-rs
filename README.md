@@ -58,16 +58,16 @@ that can potentially cause conflicts when converting APIs to Rust. In
 order to resolve these conflicts we adopt a [Hungarian Notation](http://en.wikipedia.org/wiki/Hungarian_notation)
 naming scheme:
 
-| Objective-C Element | Prefix          |
-|-------------------- | --------------- |
-| C type aliases      | `[ident]`       |
-| C variables         | `[ident]`       |
-| C functions         | `[ident]`       |
-| C struct            | `[ident]`       |
-| Class Method        | `c_[ident]`     |
-| Instance Method     | `i_[ident]`     |
-| Instance Variables  | `iv_[ident]`    |
-| Properties          | `p_[ident]`     |
+| Objective-C Element | Rust identifier format  |
+|-------------------- | ----------------------- |
+| C type aliases      | `[ident]`               |
+| C variables         | `[ident]`               |
+| C functions         | `[ident]`               |
+| C struct            | `[ident]`               |
+| Class Method        | `c_[ident]`             |
+| Instance Method     | `i_[ident]`             |
+| Instance Variables  | `iv_[ident]`            |
+| Properties          | `p_[ident]`             |
 
 ### Namespacing methods, instance variables, and properties under unit structs
 
@@ -75,7 +75,7 @@ To prevent conflicts between methods, instance variables, and properties,
 need to be separated from the global namespace using unit structs. These
 structs use the following naming conventions:
 
-| Objective-C Element | Prefix                          |
+| Objective-C Element | Rust identifier format          |
 | ------------------- | ------------------------------- |
 | Class               | `[namespace]Class[ident]`       |
 | Protocol            | `[namespace]Protocol[ident]`    |
