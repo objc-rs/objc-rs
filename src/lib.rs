@@ -603,12 +603,12 @@ pub type Impl = extern "C" fn(Id, Selector, ...) -> Id;
 // objc_AssociationPolicy
 
 trait GetClass {
-    fn get_objc_class_name(self) -> &'static str;
+    fn get_class_name(self) -> &'static str;
 
     /// Returns the runtime class handle.
     #[inline]
-    unsafe fn get_objc_class(self) -> Class {
-        class(self.get_objc_class_name())
+    unsafe fn get_class(self) -> Class {
+        class(self.get_class_name())
     }
 }
 
@@ -616,7 +616,7 @@ pub struct NSClassObject;
 
 impl GetClass for NSClassObject {
     #[inline]
-    fn get_objc_class_name(self) -> &'static str { "NSObject" }
+    fn get_class_name(self) -> &'static str { "NSObject" }
 }
 
 /// Class and instance methods for `NSObject`

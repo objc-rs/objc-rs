@@ -82,19 +82,32 @@ should use the following naming conventions:
 | Protocol            | `[namespace]Protocol[ident]`    |
 | Category            | `[namespace]Category[ident]`    |
 
+Objective-C classes should also implement the `GetClass` trait.
+
 #### Example
 
 ~~~rust
+extern crate objc;
+
 struct NSClassObject;
 
+impl objc::GetClass for NSClassObject {
+    #[inline]
+    fn get_class_name(self) -> &'static str { "NSObject" }
+}
+
 impl NSClassObject {
-    pub unsafe fn c_class(class: Class) -> Class { ... }
+    pub unsafe fn c_class(objc::class: Class) -> objc::Class {
+        objc::msg_send()(class.as_id(), objc::selector("c_class"))
+    }
 }
 
 struct NSProtocolObject;
 
 impl NSProtocolObject {
-    pub unsafe fn i_class(this: Id) -> Class { ... }
+    pub unsafe fn i_class(objc::this: Id) -> objc::Class {
+        objc::msg_send()(class.as_id(), objc::selector("c_class"))
+    }
 }
 ~~~
 
