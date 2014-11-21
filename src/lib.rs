@@ -21,7 +21,6 @@ extern crate libc;
 use std::c_str::CString;
 use std::c_vec::CVec;
 use std::fmt;
-use std::intrinsics::type_id;
 use std::mem;
 use std::string;
 
@@ -404,33 +403,24 @@ impl Super {
 
 // Sending Messages
 
-/// Returns a function that sends a message to an instance of a class,
-/// returning a `T`.
-pub fn msg_send<T: 'static>() -> unsafe extern "C" fn(Id, Selector, ...) -> T {
-    unsafe {
-        match type_id::<T>() {
-            // On the i386 platform, the ABI for functions returning a
-            // floating-point value is incompatible with that for functions
-            // returning an integral type.
-            id if (id == type_id::<libc::c_float>()  && cfg!(target_word_size = "32"))
-               || (id == type_id::<libc::c_double>() && cfg!(target_word_size = "32"))
-                                        => mem::transmute(ffi::objc_msgSend_fpret),
-            id if id == type_id::<Id>() => mem::transmute(ffi::objc_msgSend),
-            _                           => mem::transmute(ffi::objc_msgSend_stret),
-
-        }
-    }
+pub fn msg_send<T>() -> unsafe extern fn(Id, Selector, ...) -> T {
+    unsafe { mem::transmute(ffi::objc_msgSend) }
 }
 
-/// Returns a function that sends a message to a superclass of an instance of a
-/// class, returning a `T`.
-pub fn msg_send_super<T: 'static>() -> unsafe extern "C" fn(Super, Selector, ...) -> T {
-    unsafe {
-        match type_id::<T>() {
-            id if id == type_id::<Id>() => mem::transmute(ffi::objc_msgSendSuper),
-            _                           => mem::transmute(ffi::objc_msgSendSuper_stret),
-        }
-    }
+pub fn msg_send_fpret<T: std::num::Float>() -> unsafe extern fn(Id, Selector, ...) -> T {
+    unsafe { mem::transmute(ffi::objc_msgSend_fpret) }
+}
+
+pub fn msg_send_stret<T>() -> unsafe extern fn(Id, Selector, ...) -> T {
+    unsafe { mem::transmute(ffi::objc_msgSend_stret) }
+}
+
+pub fn msg_send_super<T>() -> unsafe extern fn(Id, Selector, ...) -> T {
+    unsafe { mem::transmute(ffi::objc_msgSend) }
+}
+
+pub fn msg_send_super_stret<T>() -> unsafe extern fn(Id, Selector, ...) -> T {
+    unsafe { mem::transmute(ffi::objc_msgSend_stret) }
 }
 
 
@@ -612,29 +602,37 @@ pub type Impl = extern "C" fn(Id, Selector, ...) -> Id;
 
 // objc_AssociationPolicy
 
-pub struct NSObject;
+trait GetClass {
+    fn get_objc_class_name(self) -> &'static str;
 
-/// Returns the class definition of `NSObject`
-#[allow(non_snake_case)]
-#[inline]
-pub unsafe fn NSObject() -> Class {
-    class("NSObject")
+    /// Returns the runtime class handle.
+    #[inline]
+    unsafe fn get_objc_class(self) -> Class {
+        class(self.get_objc_class_name())
+    }
+}
+
+pub struct NSClassObject;
+
+impl GetClass for NSClassObject {
+    #[inline]
+    fn get_objc_class_name(self) -> &'static str { "NSObject" }
 }
 
 /// Class and instance methods for `NSObject`
 #[allow(non_snake_case)]
-impl NSObject {
+impl NSClassObject {
     ////////////////////////////////////////////////////////////////////////////
     // Initializing a Class
     ////////////////////////////////////////////////////////////////////////////
 
     #[inline]
-    pub unsafe fn initialize(class: Class) -> Class {
+    pub unsafe fn c_initialize(class: Class) -> Class {
         msg_send()(class.as_id(), selector("initialize"))
     }
 
     #[inline]
-    pub unsafe fn load(class: Class) {
+    pub unsafe fn c_load(class: Class) {
         msg_send()(class.as_id(), selector("load"))
     }
 
@@ -643,38 +641,38 @@ impl NSObject {
     ////////////////////////////////////////////////////////////////////////////
 
     #[inline]
-    pub unsafe fn alloc(class: Class) -> Id {
+    pub unsafe fn c_alloc(class: Class) -> Id {
         msg_send()(class.as_id(), selector("alloc"))
     }
 
     // TODO: + allocWithZone:
 
     #[inline]
-    pub unsafe fn init(this: Id) -> Id {
+    i_pub unsafe fn init(this: Id) -> Id {
         msg_send()(this, selector("init"))
     }
 
     #[inline]
-    pub unsafe fn copy(this: Id) -> Id {
+    pub unsafe fn i_copy(this: Id) -> Id {
         msg_send()(this, selector("copy"))
     }
 
     // TODO: + copyWithZone:
 
     #[inline]
-    pub unsafe fn mutable_copy(this: Class) -> Id {
+    pub unsafe fn i_mutable_copy(this: Id) -> Id {
         msg_send()(this, selector("mutable_copy"))
     }
 
     // TODO: + mutableCopyWithZone:
 
     #[inline]
-    pub unsafe fn dealloc(this: Id) -> Id {
+    pub unsafe fn i_dealloc(this: Id) -> Id {
         msg_send()(this, selector("dealloc"))
     }
 
     #[inline]
-    pub unsafe fn new(class: Class) -> Id {
+    pub unsafe fn c_new(class: Class) -> Id {
         msg_send()(class.as_id(), selector("new"))
     }
 
@@ -683,17 +681,17 @@ impl NSObject {
     ////////////////////////////////////////////////////////////////////////////
 
     #[inline]
-    pub unsafe fn class(class: Class) -> Class {
+    pub unsafe fn c_class(class: Class) -> Class {
         msg_send()(class.as_id(), selector("class"))
     }
 
     #[inline]
-    pub unsafe fn superclass(class: Class) -> Class {
+    pub unsafe fn c_superclass(class: Class) -> Class {
         msg_send()(class.as_id(), selector("superclass"))
     }
 
     #[inline]
-    pub unsafe fn isSubclassOfClass_(class: Class, sup: Class) -> bool {
+    pub unsafe fn c_isSubclassOfClass_(class: Class, sup: Class) -> bool {
         ffi::YES == msg_send()(class.as_id(), selector("isSubclassOfClass:"), sup)
     }
 
