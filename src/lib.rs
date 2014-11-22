@@ -626,11 +626,17 @@ impl NSClassObject {
     // Initializing a Class
     ////////////////////////////////////////////////////////////////////////////
 
+    /// ~~~objective-c
+    /// + (void)initialize
+    /// ~~~
     #[inline]
     pub unsafe fn c_initialize(class: Class) -> Class {
         msg_send()(class.as_id(), selector("initialize"))
     }
 
+    /// ~~~objective-c
+    /// + (void)load
+    /// ~~~
     #[inline]
     pub unsafe fn c_load(class: Class) {
         msg_send()(class.as_id(), selector("load"))
@@ -640,6 +646,9 @@ impl NSClassObject {
     // Creating, Copying, and Deallocating Objects
     ////////////////////////////////////////////////////////////////////////////
 
+    /// ~~~objective-c
+    /// + (instancetype)alloc
+    /// ~~~
     #[inline]
     pub unsafe fn c_alloc(class: Class) -> Id {
         msg_send()(class.as_id(), selector("alloc"))
@@ -647,11 +656,17 @@ impl NSClassObject {
 
     // TODO: + allocWithZone:
 
+    /// ~~~objective-c
+    /// - (instancetype)init
+    /// ~~~
     #[inline]
     pub unsafe fn i_init(this: Id) -> Id {
         msg_send()(this, selector("init"))
     }
 
+    /// ~~~objective-c
+    /// - (id)copy
+    /// ~~~
     #[inline]
     pub unsafe fn i_copy(this: Id) -> Id {
         msg_send()(this, selector("copy"))
@@ -659,6 +674,9 @@ impl NSClassObject {
 
     // TODO: + copyWithZone:
 
+    /// ~~~objective-c
+    /// - (id)mutableCopy
+    /// ~~~
     #[inline]
     pub unsafe fn i_mutable_copy(this: Id) -> Id {
         msg_send()(this, selector("mutable_copy"))
@@ -666,11 +684,17 @@ impl NSClassObject {
 
     // TODO: + mutableCopyWithZone:
 
+    /// ~~~objective-c
+    /// - (void)dealloc
+    /// ~~~
     #[inline]
     pub unsafe fn i_dealloc(this: Id) -> Id {
         msg_send()(this, selector("dealloc"))
     }
 
+    /// ~~~objective-c
+    /// + (instancetype)new
+    /// ~~~
     #[inline]
     pub unsafe fn c_new(class: Class) -> Id {
         msg_send()(class.as_id(), selector("new"))
