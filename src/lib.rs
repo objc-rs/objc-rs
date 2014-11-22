@@ -648,7 +648,7 @@ impl NSClassObject {
     // TODO: + allocWithZone:
 
     #[inline]
-    i_pub unsafe fn init(this: Id) -> Id {
+    pub unsafe fn i_init(this: Id) -> Id {
         msg_send()(this, selector("init"))
     }
 
