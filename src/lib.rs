@@ -612,6 +612,8 @@ trait GetClass {
     }
 }
 
+pub type NSObject = Id;
+
 pub struct NSClassObject;
 
 impl GetClass for NSClassObject {

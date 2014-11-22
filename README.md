@@ -82,34 +82,11 @@ should use the following naming conventions:
 | Protocol            | `[namespace]Protocol[ident]`    |
 | Category            | `[namespace]Category[ident]`    |
 
-Objective-C classes should also implement the `GetClass` trait.
+### Conventions regarding class definitions
 
-#### Example
-
-~~~rust
-extern crate objc;
-
-struct NSClassObject;
-
-impl objc::GetClass for NSClassObject {
-    #[inline]
-    fn get_class_name(self) -> &'static str { "NSObject" }
-}
-
-impl NSClassObject {
-    pub unsafe fn c_class(objc::class: Class) -> objc::Class {
-        objc::msg_send()(class.as_id(), objc::selector("c_class"))
-    }
-}
-
-struct NSProtocolObject;
-
-impl NSProtocolObject {
-    pub unsafe fn i_class(objc::this: Id) -> objc::Class {
-        objc::msg_send()(class.as_id(), objc::selector("c_class"))
-    }
-}
-~~~
+A class definition should be accompanied by a type alias that maps the class
+identifier to the `Id` type. This will make method definitions clearer.
+Classes should also implement the `GetClass` trait.
 
 ### Naming selectors
 
@@ -138,4 +115,39 @@ In order to model this in rust, we use `_` as a stand in for the `:`.
 
 - http://www.sealiesoftware.com/blog/archive/2008/10/30/objc_explain_objc_msgSend_stret.html
 - http://www.sealiesoftware.com/blog/archive/2008/11/16/objc_explain_objc_msgSend_fpret.html
+
+### Example
+
+~~~rust
+extern crate objc;
+
+type NSObject = objc::Id;
+
+struct NSClassObject;
+
+impl objc::GetClass for NSClassObject {
+    #[inline]
+    fn get_class_name(self) -> &'static str { "NSObject" }
+}
+
+impl NSClassObject {
+    #[inline]
+    pub unsafe fn c_class(objc::class: Class) -> objc::Class {
+        objc::msg_send()(class.as_id(), objc::selector("c_class"))
+    }
+
+    // ...
+}
+
+struct NSProtocolObject;
+
+impl NSProtocolObject {
+    #[inline]
+    pub unsafe fn i_class(objc::this: Id) -> objc::Class {
+        objc::msg_send()(class.as_id(), objc::selector("c_class"))
+    }
+
+    // ...
+}
+~~~
 
