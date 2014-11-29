@@ -22,7 +22,6 @@ use std::c_str::CString;
 use std::c_vec::CVec;
 use std::fmt;
 use std::mem;
-use std::string;
 
 /// Foreign functions and types for the Objective-C bridging API.
 #[cfg(target_os="macos")]
@@ -79,7 +78,7 @@ impl Class {
     // Working With Classes
 
     pub unsafe fn get_name(self) -> String {
-        string::raw::from_buf(ffi::class_getName(self.raw) as *const libc::c_uchar)
+        String::from_raw_buf(ffi::class_getName(self.raw) as *const libc::c_uchar)
     }
 
     pub unsafe fn get_super_class(self) -> Class {
@@ -123,7 +122,7 @@ impl Class {
     }
 
     pub unsafe fn get_ivar_layout(self) -> String {
-        string::raw::from_buf(ffi::class_getIvarLayout(self.raw))
+        String::from_raw_buf(ffi::class_getIvarLayout(self.raw))
     }
 
     pub unsafe fn set_ivar_layout(self, layout: &str) {
@@ -131,7 +130,7 @@ impl Class {
     }
 
     pub unsafe fn get_weak_ivar_layout(self) -> String {
-        string::raw::from_buf(ffi::class_getWeakIvarLayout(self.raw))
+        String::from_raw_buf(ffi::class_getWeakIvarLayout(self.raw))
     }
 
     pub unsafe fn set_weak_ivar_layout(self, layout: &str) {
@@ -291,7 +290,7 @@ impl Class {
     // Working with Libraries
 
     pub unsafe fn get_image_name(self) -> String {
-        string::raw::from_buf(ffi::class_getImageName(self.raw) as *const libc::c_uchar)
+        String::from_raw_buf(ffi::class_getImageName(self.raw) as *const libc::c_uchar)
     }
 }
 
@@ -370,11 +369,11 @@ impl InstanceVariable {
     // Working with Instance Variables
 
     pub unsafe fn get_name(self) -> String {
-        string::raw::from_buf(ffi::ivar_getName(self.raw) as *const libc::c_uchar)
+        String::from_raw_buf(ffi::ivar_getName(self.raw) as *const libc::c_uchar)
     }
 
     pub unsafe fn get_type_encoding(self) -> String {
-        string::raw::from_buf(ffi::ivar_getTypeEncoding(self.raw) as *const libc::c_uchar)
+        String::from_raw_buf(ffi::ivar_getTypeEncoding(self.raw) as *const libc::c_uchar)
     }
 
     pub unsafe fn get_offset(self) -> int {
@@ -443,7 +442,7 @@ impl Method {
 
     #[inline]
     pub unsafe fn get_name(self) -> String {
-        string::raw::from_buf(ffi::method_getName(self.raw) as *const libc::c_uchar)
+        String::from_raw_buf(ffi::method_getName(self.raw) as *const libc::c_uchar)
     }
 
     #[inline]
@@ -496,7 +495,7 @@ pub unsafe fn copy_image_names() -> Vec<String> {
     let mut count = 0;
     let ptr = ffi::objc_copyImageNames(&mut count);
     range(0, count as int).map(|i| {
-        string::raw::from_buf(*ptr.offset(i) as *const libc::c_uchar)
+        String::from_raw_buf(*ptr.offset(i) as *const libc::c_uchar)
     }).collect()
 }
 
@@ -506,7 +505,7 @@ pub unsafe fn copy_class_names_for_image(image: &str) -> Vec<String> {
     let mut count = 0;
     let ptr = ffi::objc_copyClassNamesForImage(image.to_c_str().as_ptr(), &mut count);
     range(0, count as int).map(|i| {
-        string::raw::from_buf(*ptr.offset(i) as *const libc::c_uchar)
+        String::from_raw_buf(*ptr.offset(i) as *const libc::c_uchar)
     }).collect()
 }
 
@@ -525,7 +524,7 @@ impl Selector {
     // Working with Selectors
 
     pub unsafe fn get_name(self) -> String {
-        string::raw::from_buf(ffi::sel_getName(self.raw) as *const libc::c_uchar)
+        String::from_raw_buf(ffi::sel_getName(self.raw) as *const libc::c_uchar)
     }
 
     pub unsafe fn register_name(name: &str) -> Selector {
