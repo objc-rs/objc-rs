@@ -416,11 +416,11 @@ pub fn msg_send_stret<T>() -> unsafe extern fn(Id, Selector, ...) -> T {
 }
 
 pub fn msg_send_super<T>() -> unsafe extern fn(Id, Selector, ...) -> T {
-    unsafe { mem::transmute(ffi::objc_msgSend) }
+    unsafe { mem::transmute(ffi::objc_msgSendSuper) }
 }
 
 pub fn msg_send_super_stret<T>() -> unsafe extern fn(Id, Selector, ...) -> T {
-    unsafe { mem::transmute(ffi::objc_msgSend_stret) }
+    unsafe { mem::transmute(ffi::objc_msgSendSuper_stret) }
 }
 
 
